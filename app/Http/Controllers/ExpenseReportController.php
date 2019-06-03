@@ -1,9 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
 use App\ExpenseReport;
+use Illuminate\Http\Request;
+
 class ExpenseReportController extends Controller
 {
     /**
@@ -31,14 +31,18 @@ class ExpenseReportController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
+     * 
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
+        $validData = $request->validate([
+            'title' => 'required|min:3'
+        ]);
+
         $report = new ExpenseReport();
-        $report->title = $request->get('title');
+        $report->title = $validData['title'];
         $report->save();
 
         return redirect('expense_reports');
@@ -50,9 +54,11 @@ class ExpenseReportController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(ExpenseReport $expenseReport)
     {
-        //
+        return view('expenseReport.show', [
+            'report' => $expenseReport
+        ]);
     }
 
     /**
