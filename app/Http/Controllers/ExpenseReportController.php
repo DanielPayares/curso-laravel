@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 use App\ExpenseReport;
+use App\Mail\SummaryReport;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class ExpenseReportController extends Controller
 {
@@ -25,13 +27,12 @@ class ExpenseReportController extends Controller
      */
     public function create()
     {
-        
-        return view ('expenseReport.create');
+        return view('expenseReport.create');
     }
 
     /**
      * Store a newly created resource in storage.
-     * 
+     *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
@@ -45,13 +46,13 @@ class ExpenseReportController extends Controller
         $report->title = $validData['title'];
         $report->save();
 
-        return redirect('expense_reports');
+        return redirect('/expense_reports');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param ExpenseReport $expenseReport
      * @return \Illuminate\Http\Response
      */
     public function show(ExpenseReport $expenseReport)
@@ -110,5 +111,19 @@ class ExpenseReportController extends Controller
         return view('expenseReport.confirmDelete', [
             'report' => $report
         ]);
+    }
+
+    public function confirmSendMail($id) {
+        $report = ExpenseReport::find($id);
+        return view('expenseReport.confirmSendMail', [
+            'report' => $report
+        ]);
+    }
+
+    public function sendMail(Request $request, $id) {
+        $report = ExpenseReport::find($id);
+        Mail::to($request->get('email'))->send(new SummaryReport($report));
+
+        return redirect('/expense_reports/' . $id);
     }
 }
